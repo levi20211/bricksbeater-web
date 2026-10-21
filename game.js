@@ -101,8 +101,9 @@ function allBall(){if(ballWait)return;let any=false;
  for(const b of balls){if(!b.alive)continue;any=true;singleBallHit(b);
   b.x+=b.vx+rand()%10/100;b.y+=b.vy+rand()%10/100;
   if(b.x<BALL_R)b.x=BALL_R;else if(b.x>W-BALL_R)b.x=W-BALL_R;if(b.y<BALL_R)b.y=BALL_R;}
- if(!any){if(remaining)ballWait=true;else state='fail';}}
-function checkSuccess(){if(!map.some(b=>b.type===BRICK))state='win';}
+ if(!any){if(remaining)ballWait=true;else{state='fail';stateAt=performance.now()}}}
+let stateAt=0;
+function checkSuccess(){if(!map.some(b=>b.type===BRICK)){state='win';stateAt=performance.now()}}
 function randSpeed(){const vx=((rand()%(BALL_SPEED*1e4))/1e4 % (BALL_SPEED-rand()%10/10000))*(rand()%2?1:-1);
  return[vx,Math.sqrt(BALL_SPEED*BALL_SPEED-vx*vx)*(rand()%2?1:-1)];}
 function genBall(board,x=0,y=0,up=false){if(balls.length>=BALL_MAX_NUM)return;const b={alive:true};
@@ -140,8 +141,8 @@ function draw(){ctx.setTransform(scale,0,0,scale,0,0);ctx.fillStyle='rgb(19,19,9
  else for(const b of balls)if(b.alive){ctx.moveTo(b.x+BALL_R,b.y);ctx.arc(b.x,b.y,BALL_R,0,7)}ctx.fill();
  if(inMenu){overlay('Bricks Beater','致敬 Many Bricks Breaker');text('点击屏幕开始',W/2,BOARD_Y+BOARD_HALF_THICKNESS+22,18);
   text('拖动手指移动挡板 · 点击发球',W/2,BOARD_Y+60,14);text('键盘：←/→ 或 A/D 移动，空格发球',W/2,BOARD_Y+82,12);}
- else if(state==='win')overlay('过关！',level===LEVEL_NUM-1?'全部通关！点此返回主菜单':'点此进入下一关');
- else if(state==='fail')overlay(null,'失败了，点此重新开始');
+ else if(state==='win')overlay('过关！',level===LEVEL_NUM-1?'全部通关！点击屏幕返回主菜单':'点击屏幕进入下一关');
+ else if(state==='fail')overlay(null,'失败了，点击屏幕重新开始');
  else if(ballWait)text('点击发球',W/2,BOARD_Y+30,16);
  ctx.setTransform(1,0,0,1,0,0);}
 
@@ -151,7 +152,7 @@ function moveBoard(x){if(!ballWait)boardX=x}  // 与原版一致：等待发球�
 function press(x,y){initAudio();
  if(x>=W-90&&x<=W-50&&y<=50){soundOn=!soundOn;return}
  if(inMenu){inMenu=false;launch();return}
- if(state!=='gaming'){if(y>150+STATE_BAR_HEIGHT-20&&y<200+STATE_BAR_HEIGHT+20)endLevel();return}
+ if(state!=='gaming'){if(performance.now()-stateAt>400)endLevel();return} // 过关/失败后点屏幕任意位置继续（避免手机上点不中提示条而卡住）
  if(x>=restartBtn.l&&x<=restartBtn.r&&y>=restartBtn.t&&y<=restartBtn.b){InitLevel();return}
  if(ballWait)launch();}
 function endLevel(){if(state==='win'){if(level===LEVEL_NUM-1){level=0;inMenu=true}else level++}InitLevel();state='gaming'}
@@ -176,4 +177,7 @@ function loop(t){acc+=Math.min(t-last,250);last=t;
  draw();requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
 // 测试钩子
-window.__bb={get state(){return{level,inMenu,state,balls:balls.length,remaining}}};
+const DEBUG=/[?&]debug/.test(location.search);
+function debugClear(){for(const b of map)if(b.type===BRICK)b.type=EMPTY}
+if(DEBUG)addEventListener('keydown',e=>{if(e.key==='c')debugClear()});
+window.__bb={clear:()=>DEBUG&&debugClear(),get state(){return{level,inMenu,state,balls:balls.length,remaining}}};
