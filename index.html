@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="打砖块">
+<meta name="theme-color" content="#13135c">
+<title>Bricks Beater 打砖块</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+html,body{margin:0;height:100%;background:#0b0b3a;overflow:hidden;touch-action:none;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;font-family:system-ui,"PingFang SC","Microsoft YaHei",sans-serif}
+#wrap{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+canvas{display:block;touch-action:none;image-rendering:pixelated}
+#credit{color:#8a8ac8;font-size:11px;padding:4px;text-align:center}
+#credit a{color:#b0b0ff}
+</style></head><body>
+<div id="wrap"><canvas id="c"></canvas>
+<div id="credit">原作 <a href="https://github.com/zouhuidong/BricksBeater" target="_blank">BricksBeater</a> © 2023 huidong（MIT 许可）· 网页移植版</div></div>
+<script src="levels.js"></script>
+<script src="game.js"></script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+</body></html>
